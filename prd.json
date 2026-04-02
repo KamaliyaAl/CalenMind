@@ -1,0 +1,53 @@
+{
+  "product_name": "CalenMind AI",
+  "product_overview": "AI agent that turns messy photos, voice notes, and text into Google Calendar events.",
+  "features": [
+    {
+      "feature_id": "F001",
+      "general_info": {
+        "name": "Google OAuth Authentication",
+        "overview": "Securely connect user's Google Calendar using OAuth 2.0."
+      },
+      "scenarios": [
+        {
+          "scenario_id": "SC001",
+          "name": "Successful Auth",
+          "description": "User clicks login, grants permissions, and token is saved."
+        }
+      ]
+    },
+    {
+      "feature_id": "F002",
+      "general_info": {
+        "name": "Multimodal Input Processing",
+        "overview": "Accept and parse photos, voice, and text inputs via Telegram."
+      },
+      "scenarios": [
+        {
+          "scenario_id": "SC002",
+          "name": "Photo Syllabus Parsing",
+          "description": "User sends a photo, AI extracts events and sends confirmation."
+        },
+        {
+          "scenario_id": "SC003",
+          "name": "Voice Note Parsing",
+          "description": "User sends voice, AI extracts time/title and creates event."
+        }
+      ]
+    },
+    {
+      "feature_id": "F004",
+      "general_info": {
+        "name": "Freemium Limits",
+        "overview": "Limit free users to 10 event syncs per month."
+      },
+      "scenarios": [
+        {
+          "scenario_id": "SC004",
+          "name": "Limit Exceeded",
+          "description": "User tries to sync 11th event and receives a payment prompt."
+        }
+      ]
+    }
+  ]
+}

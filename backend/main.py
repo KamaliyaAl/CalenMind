@@ -1,5 +1,5 @@
 """
-main.py — FastAPI application entry point for CalenMind AI backend.
+main.py — FastAPI application entry point for CalenMind backend.
 
 ## Traceability
 Feature: F001, F002, F004 — All features

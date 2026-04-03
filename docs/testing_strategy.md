@@ -8,7 +8,7 @@
 **Date:** 2026-04-03  
 
 ## 2. Purpose
-This document defines the overall testing approach for the **CalenMind AI** system. It explains what will be tested (Multimodal AI parsing, Google OAuth, Telegram Bot UI), which test levels will be used, how requirements will be covered, what will be automated, and which quality gates must be satisfied before the MVP release.
+This document defines the overall testing approach for the **CalenMind** system. It explains what will be tested (Multimodal AI parsing, Google OAuth, Telegram Bot UI), which test levels will be used, how requirements will be covered, what will be automated, and which quality gates must be satisfied before the MVP release.
 
 ## 3. Scope
 ### 3.1 In Scope
@@ -25,7 +25,7 @@ This document defines the overall testing approach for the **CalenMind AI** syst
 * **Infrastructure:** Stress testing of AWS/Cloud hosting (focus is on software logic).
 
 ## 4. System Overview
-CalenMind AI is a middleware system. The **Telegram Bot** acts as the UI layer, collecting multimodal inputs (photos, voice, text). These are sent to a **FastAPI Backend**, which orchestrates **LLMs (Claude/GPT)** to extract schedule data and synchronizes it with the user's **Google Calendar**.
+CalenMind is a middleware system. The **Telegram Bot** acts as the UI layer, collecting multimodal inputs (photos, voice, text). These are sent to a **FastAPI Backend**, which orchestrates **LLMs (Claude)** to extract schedule data and synchronizes it with the user's **Google Calendar**.
 
 ## 5. Requirements Overview
 **Functional Requirements (FR):**

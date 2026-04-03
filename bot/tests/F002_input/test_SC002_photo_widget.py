@@ -36,11 +36,9 @@ async def test_SC002_trigger_extracts_file_id(mock_photo_message, mock_state):
 @pytest.mark.asyncio
 async def test_SC002_code_returns_events_synced(mock_photo_message, mock_state, sample_events_response):
     """PhotoProcessCode must return 'events_synced' on a successful backend call."""
-    with (
-        patch("bot.handler.v1.user.scheduling.F002.photo_widget.ProcessClient.download_file", new_callable=AsyncMock) as mock_dl,
-        patch("bot.handler.v1.user.scheduling.F002.photo_widget.ProcessClient") as MockClient,
-    ):
-        mock_dl.return_value = b"fake_bytes"
+    with patch("bot.handler.v1.user.scheduling.F002.photo_widget.ProcessClient") as MockClient:
+        # download_file is a static method on the patched class
+        MockClient.download_file = AsyncMock(return_value=b"fake_bytes")
         instance = MockClient.return_value
         instance.process_photo = AsyncMock(return_value=sample_events_response)
         instance.close = AsyncMock()
@@ -55,11 +53,8 @@ async def test_SC002_code_returns_events_synced(mock_photo_message, mock_state, 
 @pytest.mark.asyncio
 async def test_SC002_code_routes_freemium_limit(mock_photo_message, mock_state):
     """PhotoProcessCode must return 'freemium_limit' when HTTP 402 is raised (SC004)."""
-    with (
-        patch("bot.handler.v1.user.scheduling.F002.photo_widget.ProcessClient.download_file", new_callable=AsyncMock) as mock_dl,
-        patch("bot.handler.v1.user.scheduling.F002.photo_widget.ProcessClient") as MockClient,
-    ):
-        mock_dl.return_value = b"fake_bytes"
+    with patch("bot.handler.v1.user.scheduling.F002.photo_widget.ProcessClient") as MockClient:
+        MockClient.download_file = AsyncMock(return_value=b"fake_bytes")
         instance = MockClient.return_value
         instance.process_photo = AsyncMock(
             side_effect=FreemiumLimitError(402, "FREEMIUM_LIMIT_EXCEEDED", "Limit reached")

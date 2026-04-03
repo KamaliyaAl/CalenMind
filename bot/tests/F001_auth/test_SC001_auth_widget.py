@@ -79,7 +79,13 @@ async def test_SC001_send_auth_url_answer_sends_keyboard(mock_message, mock_stat
 
 @pytest.mark.asyncio
 async def test_SC001_already_connected_answer_sends_correct_text(mock_message, mock_state):
-    """AlreadyConnectedAnswer must send AUTH_ALREADY_CONNECTED text."""
+    """AlreadyConnectedAnswer must send AUTH_ALREADY_CONNECTED text with inline keyboard."""
     answer = AlreadyConnectedAnswer()
     await answer.run(event=mock_message, user_lang="en", data={})
-    mock_message.answer.assert_called_once_with(Vocab.AUTH_ALREADY_CONNECTED)
+    mock_message.answer.assert_called_once()
+    # Text is passed as the first positional argument; reply_markup is a kwarg
+    text_arg = mock_message.answer.call_args[0][0]
+    assert text_arg == Vocab.AUTH_ALREADY_CONNECTED
+    # Keyboard must also be present (Stay / Switch buttons)
+    call_kwargs = mock_message.answer.call_args[1]
+    assert "reply_markup" in call_kwargs

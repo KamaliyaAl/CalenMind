@@ -1,5 +1,5 @@
 """
-app.py — CalenMind AI Telegram Bot entry point.
+app.py — CalenMind Telegram Bot entry point.
 
 ## Traceability
 Feature: F001, F002, F004 — All bot features
@@ -33,7 +33,7 @@ dp.include_router(text_router)
 
 
 async def main() -> None:
-    logging.getLogger(__name__).info("CalenMind AI bot starting…")
+    logging.getLogger(__name__).info("CalenMind bot starting…")
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
 

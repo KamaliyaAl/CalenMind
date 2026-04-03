@@ -15,3 +15,58 @@
 - **BR001:** Only users with a valid Google OAuth token can trigger the AI parsing flow.
 - **BR002:** The monthly counter resets on the 1st of every month at 00:00 UTC.
 - **BR003:** If AI parsing fails (low confidence), the system must prompt the user for manual clarification instead of creating a guess-event.
+
+---
+
+## 3. BDD Scenarios
+
+### SC001 — Successful Google OAuth Authentication
+**Feature:** F001 — Google OAuth Authentication
+
+**Given** a new Telegram user sends `/start`
+**When** they click the "Connect Google Calendar" button and grant calendar permissions
+**Then** their OAuth token is encrypted and stored in the database
+**And** the bot sends a confirmation message with "Exit" and "Switch" options
+
+---
+
+### SC002 — Photo Syllabus Parsing
+**Feature:** F002 — Multimodal Input Processing
+
+**Given** an authenticated user sends a clear photo of a university syllabus
+**When** the AI service (Claude Sonnet 4.6) processes the image
+**Then** one or more `ParsedEventSchema` objects are returned with valid `title` and `start_time`
+**And** the events are created in the database and synced to Google Calendar
+**And** the bot replies with a formatted list of created events
+
+---
+
+### SC003 — Voice Note Parsing
+**Feature:** F002 — Multimodal Input Processing
+
+**Given** an authenticated user sends a voice note saying "Meeting with Bob tomorrow at 2 PM"
+**When** Groq Whisper transcribes the audio and Claude Haiku extracts entities
+**Then** a `ParsedEventSchema` is returned with `title` containing "Meeting" or "Bob"
+**And** `start_time` is a valid datetime set to the next day at 14:00
+
+---
+
+### SC004 — Freemium Limit Exceeded
+**Feature:** F004 — Freemium Limits
+
+**Given** a free-tier user has already performed 10 event syncs in the current month
+**When** they attempt to sync an 11th event
+**Then** the system returns HTTP 402 with `code: "FREEMIUM_LIMIT_EXCEEDED"`
+**And** no event is created in the database or Google Calendar
+**And** the bot shows a payment prompt with upgrade information
+
+---
+
+### SC005 — Complex Grid Schedule Parsing
+**Feature:** F002 — Multimodal Input Processing
+
+**Given** an authenticated user sends a photo of a university timetable grid (rows = time slots, columns = days of week)
+**When** the AI service reads column headers as days and row headers as times
+**Then** for each non-empty cell, a separate weekly recurring event is created
+**And** each event has `recurrence: ["RRULE:FREQ=WEEKLY;BYDAY=<day>"]`
+**And** `start_time` uses the next occurrence of that weekday from today

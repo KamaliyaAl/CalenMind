@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     )
 
     # ── Application ────────────────────────────────────────────────────────────
-    app_name: str = "CalenMind AI"
+    app_name: str = "CalenMind"
     app_env: str = "development"
     app_host: str = "0.0.0.0"
     app_port: int = 8000

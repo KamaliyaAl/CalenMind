@@ -7,9 +7,14 @@ Scenario: SC003 — Voice Note Parsing
 
 ## BDD
 Given: A user sends a voice note saying "Meeting with Bob tomorrow at 2 PM".
-When:  The AI service transcribes it via Whisper and extracts events via GPT-4o-mini.
+When:  The AI service transcribes it via Groq Whisper and extracts events via Claude Haiku.
 Then:  A ParsedEventSchema is returned with title containing "Bob" or "Meeting"
-       and a valid start_time.
+       and a valid start_time datetime.
+
+## Note
+Voice path uses two separate clients:
+  - self._groq.audio.transcriptions (Groq Whisper STT)
+  - self._anthropic.messages (Claude Haiku entity extraction)
 """
 
 import base64
@@ -28,8 +33,9 @@ VOICE_AI_RESULT = {
             "title": "Meeting with Bob",
             "description": None,
             "location": None,
-            "start_time": "2026-04-03T14:00:00+00:00",
-            "end_time": "2026-04-03T15:00:00+00:00",
+            "start_time": "2026-04-04T14:00:00+03:00",
+            "end_time": "2026-04-04T15:00:00+03:00",
+            "recurrence": None,
         }
     ],
     "confidence": 0.9,
@@ -45,23 +51,23 @@ def sample_base64_audio() -> str:
 
 @pytest.mark.asyncio
 async def test_SC003_voice_transcription_then_extraction(sample_base64_audio):
-    """Voice pipeline must call Whisper first, then GPT-4o-mini for extraction."""
+    """Voice pipeline must call Groq Whisper first, then Claude Haiku for extraction."""
     service = AIService()
 
+    mock_anthropic_response = MagicMock()
+    mock_anthropic_response.content = [MagicMock(text=json.dumps(VOICE_AI_RESULT))]
+
     with (
-        patch.object(service._openai.audio.transcriptions, "create", new_callable=AsyncMock) as mock_whisper,
-        patch.object(service._openai.chat.completions, "create", new_callable=AsyncMock) as mock_gpt,
+        patch.object(service._groq.audio.transcriptions, "create", new_callable=AsyncMock) as mock_whisper,
+        patch.object(service._anthropic.messages, "create", new_callable=AsyncMock) as mock_claude,
     ):
         mock_whisper.return_value = "Meeting with Bob tomorrow at 2 PM"
-
-        mock_choice = MagicMock()
-        mock_choice.message.content = json.dumps(VOICE_AI_RESULT)
-        mock_gpt.return_value = MagicMock(choices=[mock_choice])
+        mock_claude.return_value = mock_anthropic_response
 
         events = await service.process(input_type="voice", content=sample_base64_audio)
 
     mock_whisper.assert_called_once()
-    mock_gpt.assert_called_once()
+    mock_claude.assert_called_once()
     assert len(events) == 1
     assert isinstance(events[0], ParsedEventSchema)
 
@@ -71,14 +77,15 @@ async def test_SC003_event_title_reflects_transcript(sample_base64_audio):
     """Extracted event title should contain recognisable content from the voice note."""
     service = AIService()
 
+    mock_anthropic_response = MagicMock()
+    mock_anthropic_response.content = [MagicMock(text=json.dumps(VOICE_AI_RESULT))]
+
     with (
-        patch.object(service._openai.audio.transcriptions, "create", new_callable=AsyncMock) as mock_whisper,
-        patch.object(service._openai.chat.completions, "create", new_callable=AsyncMock) as mock_gpt,
+        patch.object(service._groq.audio.transcriptions, "create", new_callable=AsyncMock) as mock_whisper,
+        patch.object(service._anthropic.messages, "create", new_callable=AsyncMock) as mock_claude,
     ):
         mock_whisper.return_value = "Meeting with Bob tomorrow at 2 PM"
-        mock_choice = MagicMock()
-        mock_choice.message.content = json.dumps(VOICE_AI_RESULT)
-        mock_gpt.return_value = MagicMock(choices=[mock_choice])
+        mock_claude.return_value = mock_anthropic_response
 
         events = await service.process(input_type="voice", content=sample_base64_audio)
 
@@ -92,14 +99,15 @@ async def test_SC003_start_time_is_datetime(sample_base64_audio):
 
     service = AIService()
 
+    mock_anthropic_response = MagicMock()
+    mock_anthropic_response.content = [MagicMock(text=json.dumps(VOICE_AI_RESULT))]
+
     with (
-        patch.object(service._openai.audio.transcriptions, "create", new_callable=AsyncMock) as mock_whisper,
-        patch.object(service._openai.chat.completions, "create", new_callable=AsyncMock) as mock_gpt,
+        patch.object(service._groq.audio.transcriptions, "create", new_callable=AsyncMock) as mock_whisper,
+        patch.object(service._anthropic.messages, "create", new_callable=AsyncMock) as mock_claude,
     ):
         mock_whisper.return_value = "Meeting with Bob tomorrow at 2 PM"
-        mock_choice = MagicMock()
-        mock_choice.message.content = json.dumps(VOICE_AI_RESULT)
-        mock_gpt.return_value = MagicMock(choices=[mock_choice])
+        mock_claude.return_value = mock_anthropic_response
 
         events = await service.process(input_type="voice", content=sample_base64_audio)
 

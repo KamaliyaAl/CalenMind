@@ -13,11 +13,6 @@
           "scenario_id": "SC001",
           "name": "Successful Auth",
           "description": "User clicks login, grants permissions, and token is saved."
-        },
-        {
-          "scenario_id": "SC005",
-          "name": "Complex Grid Schedule Parsing",
-          "description": "User sends a multi-column/multi-row grid timetable. AI must correctly map row (Time) and column (Day) to create separate events."
         }
       ]
     },
@@ -37,6 +32,11 @@
           "scenario_id": "SC003",
           "name": "Voice Note Parsing",
           "description": "User sends voice, AI extracts time/title and creates event."
+        },
+        {
+          "scenario_id": "SC005",
+          "name": "Complex Grid Schedule Parsing",
+          "description": "User sends a multi-column/multi-row grid timetable. AI must correctly map row (Time) and column (Day) to create separate weekly recurring events."
         }
       ]
     },

@@ -102,13 +102,12 @@ async def test_SC002_empty_events_list_is_valid_response(sample_base64_image):
 
 # ── F002-CR-001 NEW TESTS (Red phase — all FAIL on current implementation) ────
 
-# TC-SC002-05 [FAILS NOW] FR-SC002-01
+# TC-SC002-05 FR-SC002-01
 @pytest.mark.asyncio
 async def test_SC002_photo_uses_sonnet_model(sample_base64_image, sample_ai_extraction_result):
     """
-    FR-SC002-01: Photo path must use claude-3-5-sonnet-20241022, not claude-3-haiku.
-
-    FAILS NOW: current model is 'claude-3-haiku-20240307'.
+    FR-SC002-01: Photo path must use claude-sonnet-4-6 for best vision accuracy.
+    Updated from claude-3-5-sonnet-20241022 → claude-sonnet-4-6 (CR F002-CR-002).
     """
     service = AIService()
 
@@ -120,8 +119,8 @@ async def test_SC002_photo_uses_sonnet_model(sample_base64_image, sample_ai_extr
         await service.process(input_type="photo", content=sample_base64_image)
 
     called_model = mock_create.call_args.kwargs.get("model") or mock_create.call_args.args[0]
-    assert called_model == "claude-3-5-sonnet-20241022", (
-        f"Expected claude-3-5-sonnet-20241022, got {called_model}"
+    assert called_model == "claude-sonnet-4-6", (
+        f"Expected claude-sonnet-4-6, got {called_model}"
     )
 
 

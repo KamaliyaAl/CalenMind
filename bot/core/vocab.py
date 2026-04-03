@@ -1,5 +1,5 @@
 """
-Vocab — All user-facing strings for the CalenMind AI bot.
+Vocab — All user-facing strings for the CalenMind bot.
 
 ## Traceability
 Feature: F001 — Google OAuth Authentication, F002 — Multimodal Input Processing,
@@ -15,7 +15,7 @@ Supports simple i18n extension in the future.
 class Vocab:
     # ── F001 Auth ─────────────────────────────────────────────────────────────
     AUTH_WELCOME = (
-        "👋 Welcome to <b>CalenMind AI</b>!\n\n"
+        "👋 Welcome to <b>CalenMind</b>!\n\n"
         "To get started, connect your Google Calendar."
     )
     AUTH_CONNECT_BUTTON = "🔗 Connect Google Calendar"
@@ -59,7 +59,7 @@ class Vocab:
 
     # ── Help ─────────────────────────────────────────────────────────────────
     HELP_TEXT = (
-        "<b>CalenMind AI — Commands</b>\n\n"
+        "<b>CalenMind — Commands</b>\n\n"
         "/start — Connect Google Calendar\n"
         "/status — Check connection &amp; sync usage\n"
         "/switch — Connect a different Google account\n"

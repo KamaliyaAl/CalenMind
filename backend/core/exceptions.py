@@ -1,5 +1,5 @@
 """
-Exceptions — Domain-specific HTTP exceptions for CalenMind AI.
+Exceptions — Domain-specific HTTP exceptions for CalenMind.
 
 ## Traceability
 Feature: F001 — Google OAuth Authentication, F002 — Multimodal Input Processing,

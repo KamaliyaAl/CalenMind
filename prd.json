@@ -1,5 +1,5 @@
 {
-  "product_name": "CalenMind AI",
+  "product_name": "CalenMind",
   "product_overview": "AI agent that turns messy photos, voice notes, and text into Google Calendar events.",
   "features": [
     {
@@ -13,6 +13,11 @@
           "scenario_id": "SC001",
           "name": "Successful Auth",
           "description": "User clicks login, grants permissions, and token is saved."
+        },
+        {
+          "scenario_id": "SC005",
+          "name": "Complex Grid Schedule Parsing",
+          "description": "User sends a multi-column/multi-row grid timetable. AI must correctly map row (Time) and column (Day) to create separate events."
         }
       ]
     },

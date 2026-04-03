@@ -1,10 +1,17 @@
 # Software Requirements Specification (SPEC)
 
+## 1. Functional Requirements Table
+
 | ID | Component | Requirement | Priority | User Story |
 | :--- | :--- | :--- | :--- | :--- |
-| **F001** | **Auth** | Google OAuth 2.0 Integration for calendar access. | P0 | As a user, I want to securely connect my Google Calendar. |
-| **F002** | **Input** | Multimodal Input Support: Photo (OCR), Voice (STT), Text. | P0 | As a user, I want to send a schedule photo or a voice note to the bot. |
-| **F003** | **AI Engine** | Entity Extraction (Title, Date, Time, Location) via LLM. | P0 | As a user, I want the AI to accurately understand my event details. |
-| **F004** | **Sync** | Automatic Google Calendar Event Creation. | P0 | As a user, I want to see events in my calendar immediately after processing. |
-| **F005** | **Logic** | Freemium Limit: 10 free generations per month. | P1 | As an owner, I want to monetize the project by limiting free actions. |
-| **F006** | **Interface** | Telegram Bot as the primary UI (aiogram 3). | P0 | As a user, I want to manage my schedule through a familiar messenger. |
+| **F001** | **Auth** | Integration with Google OAuth 2.0 to obtain 'calendar.events' scope access. | P0 | As a user, I want to securely grant the bot access to my calendar so it can manage events on my behalf. |
+| **F002** | **Input** | Support for multimodal data ingestion: high-res photos, voice notes (ogg/wav/mp3), and raw text. | P0 | As a user, I want to send a photo of a physical syllabus or record a voice note so I don't have to type anything manually. |
+| **F003** | **AI Engine** | LLM-based entity extraction (GPT-4o/Claude 3.5) to identify Title, Start Time, End Time, and Location. | P0 | As a user, I want the AI to accurately parse my messy inputs and turn them into a structured event format. |
+| **F004** | **Sync** | Idempotent creation of events in Google Calendar via Backend API. | P0 | As a user, I want the parsed event to appear in my Google Calendar instantly with the correct timezone settings. |
+| **F005** | **Logic** | Usage tracking and enforcement of the 10-sync monthly limit for Free Tier users. | P1 | As a business owner, I want to limit free usage to 10 events per month to encourage premium subscriptions. |
+| **F006** | **Interface** | Telegram Bot UI using `aiogram 3` with interactive widgets for confirmation. | P0 | As a user, I want to interact with the service through a familiar Telegram interface with clear buttons and feedback. |
+
+## 2. Business Rules (BR)
+- **BR001:** Only users with a valid Google OAuth token can trigger the AI parsing flow.
+- **BR002:** The monthly counter resets on the 1st of every month at 00:00 UTC.
+- **BR003:** If AI parsing fails (low confidence), the system must prompt the user for manual clarification instead of creating a guess-event.

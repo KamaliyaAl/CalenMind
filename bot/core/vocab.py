@@ -39,7 +39,7 @@ class Vocab:
     )
 
     # ── F002 Input Processing ─────────────────────────────────────────────────
-    PROCESSING_PHOTO = "📸 Processing your photo… This may take a few seconds."
+    PROCESSING_PHOTO = "📸 Processing your photo… This may take up to a minute for complex schedules."
     PROCESSING_VOICE = "🎙️ Transcribing your voice note… Please wait."
     PROCESSING_TEXT = "✍️ Parsing your message…"
     EVENTS_CREATED = "📅 <b>{count} event(s)</b> added to your Google Calendar!\n\n{event_list}"

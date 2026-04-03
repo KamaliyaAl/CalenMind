@@ -50,6 +50,20 @@ def sample_base64_image() -> str:
 
 
 @pytest.fixture
+def sample_base64_png_image() -> str:
+    """Minimal PNG (magic bytes \x89PNG + stub body) for media-type detection tests."""
+    png_header = b"\x89PNG\r\n\x1a\n" + b"\x00" * 64
+    return base64.b64encode(png_header).decode()
+
+
+@pytest.fixture
+def sample_base64_webp_image() -> str:
+    """Minimal WEBP (RIFF....WEBP header) for media-type detection tests."""
+    webp_header = b"RIFF\x00\x00\x00\x00WEBP" + b"\x00" * 64
+    return base64.b64encode(webp_header).decode()
+
+
+@pytest.fixture
 def sample_ai_extraction_result() -> dict:
     return {
         "events": [

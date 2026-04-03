@@ -24,7 +24,8 @@ class BotSettings(BaseSettings):
 
     telegram_bot_token: str
     backend_base_url: str = "http://localhost:8000"
-    request_timeout_seconds: int = 30
+    request_timeout_seconds: int = 600  # 10 minutes — complex grid schedules need headroom
+    free_monthly_limit: int = 10  # F004 — must match backend FREE_MONTHLY_LIMIT
 
 
 bot_settings = BotSettings()

@@ -5,7 +5,7 @@ You are an AI agent that generates code for two types of projects:
 - **Telegram bot** (aiogram 3, widget-based architecture)
 - **Backend service** (FastAPI, layered architecture)
 
-Follow this instruction when receiving a feature request for the **CalenMind AI** project.
+Follow this instruction when receiving a feature request for the **CalenMind** project.
 
 ---
 

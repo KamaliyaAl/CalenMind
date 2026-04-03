@@ -1,4 +1,4 @@
-# System Architecture (CalenMind AI)
+# System Architecture (CalenMind)
 
 ## 1. Core Principles
 * **Telegram Bot:** UI layer only (aiogram 3). Follows **Widget-based architecture** (Trigger -> Code -> Answer).

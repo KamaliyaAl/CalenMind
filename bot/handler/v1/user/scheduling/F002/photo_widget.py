@@ -92,8 +92,8 @@ class EventsSyncedAnswer(BaseAnswer):
 
 class FreemiumLimitAnswer(BaseAnswer):
     async def run(self, event: Message, user_lang: str, data: dict[str, Any]) -> None:
-        from backend.core.config import settings
-        await event.answer(Vocab.FREEMIUM_LIMIT.format(limit=settings.free_monthly_limit))
+        from bot.core.config import bot_settings
+        await event.answer(Vocab.FREEMIUM_LIMIT.format(limit=bot_settings.free_monthly_limit))
 
 
 class AuthNotConnectedAnswer(BaseAnswer):
@@ -119,6 +119,7 @@ ANSWER_REGISTRY: dict[str, BaseAnswer] = {
 @router.message(F.photo)
 async def handle_photo_input(message: Message, state: FSMContext) -> None:
     await message.answer(Vocab.PROCESSING_PHOTO)
+    await bot.send_chat_action(message.chat.id, "typing")
 
     trigger = PhotoTrigger()
     trigger_data = await trigger.run(message, state)

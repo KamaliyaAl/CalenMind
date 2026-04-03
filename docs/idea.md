@@ -1,4 +1,4 @@
-# Product Idea: CalenMind AI
+# Product Idea: CalenMind
 
 **Focus:** Turning messy unstructured data into a perfect schedule.
 

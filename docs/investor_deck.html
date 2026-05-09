@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CalenMind — Investor Deck</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: '#FAFAF9',
+          ink: '#0F1411',
+          charcoal: '#18181B',
+          line: '#E5E7EB',
+          muted: '#6B7280',
+          'em-deep': '#064E3B',
+          'em-mid': '#047857',
+          'em-accent': '#10B981',
+          'em-soft': '#ECFDF5',
+        },
+        fontFamily: {
+          sans: ['Inter','system-ui','sans-serif'],
+          mono: ['JetBrains Mono','monospace'],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html,body{background:#FAFAF9;color:#0F1411;-webkit-font-smoothing:antialiased;}
+  body{font-family:'Inter',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .slide-container{position:fixed;inset:0;overflow:hidden;}
+  .slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity 360ms ease;overflow-y:auto;padding:64px 80px 100px;}
+  .slide.active{opacity:1;visibility:visible;}
+  @media (max-width:900px){.slide{padding:56px 22px 100px;}}
+  .reveal-up{transform:translateY(8px);opacity:0;transition:all 600ms cubic-bezier(.2,.7,.2,1);}
+  .slide.active .reveal-up{transform:translateY(0);opacity:1;}
+  .slide.active .reveal-up.d1{transition-delay:80ms;}
+  .slide.active .reveal-up.d2{transition-delay:160ms;}
+  .slide.active .reveal-up.d3{transition-delay:240ms;}
+  .slide.active .reveal-up.d4{transition-delay:320ms;}
+  .slide.active .reveal-up.d5{transition-delay:400ms;}
+  .investor-card{background:#fff;border:1px solid #E5E7EB;border-radius:14px;padding:22px;}
+  .canvas-card{background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:16px;height:100%;}
+  .canvas-card .label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;color:#6B7280;text-transform:uppercase;}
+  .metric-card{background:#fff;border:1px solid #E5E7EB;border-left:3px solid #047857;border-radius:10px;padding:18px;}
+  .assumption-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;padding:3px 9px;border:1px solid #F59E0B;color:#92400E;background:#FFFBEB;border-radius:4px;text-transform:uppercase;}
+  .evidence-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;padding:3px 9px;border:1px solid #047857;color:#065F46;background:#ECFDF5;border-radius:4px;text-transform:uppercase;}
+  .risk-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;padding:3px 9px;border:1px solid #B91C1C;color:#991B1B;background:#FEF2F2;border-radius:4px;text-transform:uppercase;}
+  .bracket-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:#047857;text-transform:uppercase;}
+  .section-kicker{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;color:#6B7280;text-transform:uppercase;}
+  .section-kicker::before{content:"[  ";color:#047857;}
+  .section-kicker::after{content:"  ]";color:#047857;}
+  .outline-button{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:1px solid #18181B;border-radius:999px;font-size:13px;}
+  .timeline-step{position:relative;padding:18px 18px 18px 30px;background:#fff;border:1px solid #E5E7EB;border-radius:10px;}
+  .timeline-step::before{content:'';position:absolute;top:24px;left:14px;width:8px;height:8px;background:#047857;border-radius:50%;}
+  .progress-track{position:fixed;left:0;right:0;bottom:0;height:3px;background:rgba(15,20,17,.06);z-index:60;}
+  .progress-bar{height:100%;background:#047857;transition:width 360ms ease;}
+  .counter{position:fixed;right:22px;bottom:18px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:#6B7280;z-index:60;}
+  .logo{position:fixed;left:24px;top:22px;z-index:60;font-weight:700;letter-spacing:-.02em;font-size:15px;}
+  .logo .dot{color:#047857;}
+  .nav-arrow{position:fixed;bottom:14px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:1px solid #E5E7EB;background:#fff;border-radius:999px;z-index:60;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:13px;color:#0F1411;}
+  .nav-arrow:hover{border-color:#0F1411;}
+  .nav-arrow.left{left:22px;}
+  .nav-arrow.right{left:64px;}
+  h1.deck-h1{font-size:clamp(34px,5.5vw,72px);line-height:1.02;letter-spacing:-.028em;font-weight:700;}
+  h2.deck-h2{font-size:clamp(26px,3.6vw,44px);line-height:1.08;letter-spacing:-.022em;font-weight:700;}
+  .placeholder-box{border:1px dashed #047857;background:#ECFDF5;border-radius:12px;padding:18px;}
+  .divider{height:1px;background:#E5E7EB;}
+  .num-kpi{font-size:clamp(28px,3.4vw,40px);font-weight:700;letter-spacing:-.02em;line-height:1;}
+  .canvas-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+  @media (max-width:1100px){.canvas-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:600px){.canvas-grid{grid-template-columns:1fr;}}
+  .b-w{background:#0F1411;color:#FAFAF9;}
+  .b-w .section-kicker{color:#9CA3AF;}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid #E5E7EB;border-radius:999px;background:#fff;font-size:12px;color:#0F1411;}
+  .pill .dot{width:6px;height:6px;border-radius:50%;background:#047857;display:inline-block;}
+  .row{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:start;padding:14px 0;border-top:1px solid #E5E7EB;}
+  .row:first-child{border-top:0;}
+  .row .k{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;color:#6B7280;text-transform:uppercase;padding-top:2px;}
+  @media (max-width:700px){.row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="logo">CalenMind<span class="dot">.</span></div>
+<div class="counter mono"><span id="cur">01</span> / <span id="tot">22</span></div>
+<div class="nav-arrow left" id="prevBtn" aria-label="Previous">&larr;</div>
+<div class="nav-arrow right" id="nextBtn" aria-label="Next">&rarr;</div>
+<div class="progress-track"><div class="progress-bar" id="progress" style="width:4.5%"></div></div>
+
+<div class="slide-container" id="container">
+
+<!-- 1. FOUNDER INPUTS / START HERE -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 01 / Start Here</div>
+    <h1 class="deck-h1 mt-3 reveal-up d1">Founder Inputs</h1>
+    <p class="mt-3 text-muted max-w-2xl reveal-up d2">Every block below is a hypothesis the deck will defend with evidence. Provided values are pinned; missing values are flagged.</p>
+
+    <div class="grid md:grid-cols-2 gap-4 mt-10">
+      <div class="investor-card reveal-up d2">
+        <div class="flex items-center justify-between"><div class="bracket-label">01 / Design Style</div><span class="evidence-tag">Provided</span></div>
+        <p class="mt-3 text-[15px] leading-relaxed">Napoleon IT inspired minimalist style — clean typography, deep emerald and charcoal accents, structured grid layout, focus on readability and white space.</p>
+      </div>
+      <div class="investor-card reveal-up d2">
+        <div class="flex items-center justify-between"><div class="bracket-label">02 / Business Model</div><span class="evidence-tag">Provided</span></div>
+        <p class="mt-3 text-[15px] leading-relaxed">Freemium SaaS — 10 free AI-powered calendar syncs per month. Monthly subscription for unlimited syncs, priority AI processing for complex images, and advanced recurrence logic.</p>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="flex items-center justify-between"><div class="bracket-label">03 / Unit Economics</div><span class="evidence-tag">Provided</span></div>
+        <ul class="mt-3 text-[14px] space-y-1.5">
+          <li><span class="mono text-muted">LTV</span> &nbsp; $84 (12 mo &times; $7/mo)</li>
+          <li><span class="mono text-muted">COGS / AI task</span> &nbsp; $0.02 (hybrid Claude / Whisper)</li>
+          <li><span class="mono text-muted">Target Gross Margin</span> &nbsp; 85%</li>
+          <li><span class="mono text-muted">CAC target</span> &nbsp; $15 via student community</li>
+        </ul>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="flex items-center justify-between"><div class="bracket-label">04 / Funding Ask</div><span class="evidence-tag">Provided</span></div>
+        <p class="mt-3 text-[15px] leading-relaxed">Raising <span class="font-semibold">$100,000 pre-seed</span> to scale infrastructure and reach 5,000 active users.</p>
+      </div>
+      <div class="investor-card reveal-up d4">
+        <div class="flex items-center justify-between"><div class="bracket-label">05 / Current Traction</div><span class="evidence-tag">Provided</span></div>
+        <p class="mt-3 text-[15px] leading-relaxed">Functional prototype verified. 100% of core features (OAuth, Photo, Voice, Text) shipped with BDD test coverage. Successfully processing complex grid-based university syllabi at <span class="font-semibold">&gt;90% extraction accuracy</span>.</p>
+      </div>
+      <div class="investor-card reveal-up d4">
+        <div class="flex items-center justify-between"><div class="bracket-label">06 / Forward Plan / Use of Funds</div><span class="evidence-tag">Provided</span></div>
+        <p class="mt-3 text-[15px] leading-relaxed">Launch MVP to a cohort of 500 students; achieve 95% automation rate for &ldquo;dirty&rdquo; schedule extraction; ship Outlook and Apple Calendar; prepare Seed round at 1,000 paid subscribers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. TITLE / ONE-LINER -->
+<section class="slide b-w">
+  <div class="max-w-7xl mx-auto h-full flex flex-col justify-between">
+    <div>
+      <div class="reveal-up section-kicker">Slide 02 / Title</div>
+      <h1 class="deck-h1 mt-6 reveal-up d1" style="color:#FAFAF9">CalenMind<span style="color:#10B981">.</span></h1>
+      <p class="mt-6 text-2xl md:text-3xl leading-tight max-w-4xl reveal-up d2" style="color:#E5E7EB;letter-spacing:-.012em">
+        A Telegram-native AI agent for students that turns photos, voice, and messy text into Google Calendar events in under a minute &mdash; eliminating manual schedule entry.
+      </p>
+    </div>
+    <div class="grid md:grid-cols-4 gap-3 mt-12 reveal-up d3">
+      <div class="p-5 border border-white/15 rounded-xl">
+        <div class="mono text-[10px] tracking-widest text-white/50 uppercase">ICP</div>
+        <div class="mt-2 text-white text-[15px] leading-snug">Busy university students &amp; freelancers managing overlapping schedules</div>
+      </div>
+      <div class="p-5 border border-white/15 rounded-xl">
+        <div class="mono text-[10px] tracking-widest text-white/50 uppercase">Main Measurable Value</div>
+        <div class="mt-2 text-white text-[15px] leading-snug">Schedule&rarr;Calendar in &lt;60 seconds, &gt;90% accuracy on grid syllabi</div>
+      </div>
+      <div class="p-5 border border-white/15 rounded-xl">
+        <div class="mono text-[10px] tracking-widest text-white/50 uppercase">Stage</div>
+        <div class="mt-2 text-white text-[15px] leading-snug">Functional prototype, BDD-covered, pre-launch</div>
+      </div>
+      <div class="p-5 border border-white/15 rounded-xl" style="border-color:#10B981">
+        <div class="mono text-[10px] tracking-widest text-white/60 uppercase">Funding Ask</div>
+        <div class="mt-2 text-white text-[18px] font-semibold">$100K pre-seed &rarr; 5,000 active users</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. STARTUP AS SYSTEM OF EVIDENCE -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 03 / Operating Thesis</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">A startup is a system of evidence.</h2>
+    <p class="mt-3 text-muted max-w-2xl reveal-up d2">Every Lean Canvas block is a hypothesis. Below is the current proof-state of CalenMind.</p>
+
+    <div class="mt-8 reveal-up d2">
+      <div class="row"><div class="k">Customer</div><div><div class="text-[15px]">Russian/English-speaking university students hate manual schedule entry, twice a year.</div><div class="mt-2 flex gap-2 flex-wrap"><span class="assumption-tag">Hypothesis</span><span class="text-muted text-sm">Proof needed: 500-student MVP cohort</span></div></div></div>
+      <div class="row"><div class="k">Problem</div><div><div class="text-[15px]">~30&ndash;90 minutes per syllabus &times; 5&ndash;7 courses per semester.</div><div class="mt-2 flex gap-2 flex-wrap"><span class="assumption-tag">Assumption</span><span class="text-muted text-sm">Validate via time-saved survey + in-product timer</span></div></div></div>
+      <div class="row"><div class="k">Solution</div><div><div class="text-[15px]">Photo / voice / text &rarr; AI extraction &rarr; Google Calendar event in &lt;60s.</div><div class="mt-2 flex gap-2 flex-wrap"><span class="evidence-tag">Proven</span><span class="text-muted text-sm">Prototype runs SC002, SC003, SC005 end-to-end at &gt;90% accuracy</span></div></div></div>
+      <div class="row"><div class="k">Channel</div><div><div class="text-[15px]">Telegram-native + university communities.</div><div class="mt-2 flex gap-2 flex-wrap"><span class="risk-tag">Top Risk</span><span class="text-muted text-sm">Need to prove CAC &lt;$15</span></div></div></div>
+      <div class="row"><div class="k">Economics</div><div><div class="text-[15px]">$7/mo, $0.02 COGS / sync, 85% target GM, $84 LTV, 5.6&times; LTV:CAC.</div><div class="mt-2 flex gap-2 flex-wrap"><span class="evidence-tag">COGS proven</span><span class="assumption-tag">LTV needs cohort data</span></div></div></div>
+      <div class="row"><div class="k">Scalability</div><div><div class="text-[15px]">Stateless layered FastAPI + standard providers; Pydantic contracts at every boundary.</div><div class="mt-2 flex gap-2 flex-wrap"><span class="evidence-tag">Architectural Proof</span><span class="text-muted text-sm">Bot is pure UI, backend is independently scalable</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. LEAN CANVAS OVERVIEW -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 04 / Lean Canvas</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">The full picture, on one page.</h2>
+
+    <div class="canvas-grid mt-8 reveal-up d2">
+      <div class="canvas-card"><div class="label">Customer</div><div class="mt-2 text-[14px] leading-snug">University students with rotating semester schedules; freelancers; busy parents (later).</div></div>
+      <div class="canvas-card"><div class="label">Problem</div><div class="mt-2 text-[14px] leading-snug">Manual transfer of messy schedules (PDFs, photos, voice) into Google Calendar &mdash; 30+ min per syllabus.</div></div>
+      <div class="canvas-card"><div class="label">Alternatives</div><div class="mt-2 text-[14px] leading-snug">Manual Calendar entry, Google Lens (text only), Siri/Assistant (fails on grids), pen &amp; paper, doing nothing.</div></div>
+      <div class="canvas-card"><div class="label">Solution</div><div class="mt-2 text-[14px] leading-snug">Telegram bot &rarr; multimodal AI &rarr; structured events with RRULE in Google Calendar.</div></div>
+      <div class="canvas-card"><div class="label">Value Metrics</div><div class="mt-2 text-[14px] leading-snug">Time-to-first-event, automation rate, edits-per-event, free&rarr;paid conversion at the 10-sync limit.</div></div>
+      <div class="canvas-card"><div class="label">UVP</div><div class="mt-2 text-[14px] leading-snug">Any schedule into your calendar in seconds &mdash; without typing a single date.</div></div>
+      <div class="canvas-card"><div class="label">Unfair Advantage</div><div class="mt-2 text-[14px] leading-snug">Domain-tuned grid prompt (SC005), cost-optimal AI router, BDD-locked data contract, Telegram-zero-install.</div></div>
+      <div class="canvas-card"><div class="label">Early Adopters</div><div class="mt-2 text-[14px] leading-snug">Course reps and chat admins at Russian/CIS universities at semester start.</div></div>
+      <div class="canvas-card"><div class="label">Market</div><div class="mt-2 text-[14px] leading-snug">SOM ~$8.4M ARR (CIS, 1% paid penetration), TAM ~$21B (250M tertiary students &times; $84).</div></div>
+      <div class="canvas-card"><div class="label">Channels</div><div class="mt-2 text-[14px] leading-snug">Founder-led student communities, ambassadors, Product Hunt, referral loop.</div></div>
+      <div class="canvas-card"><div class="label">Revenue</div><div class="mt-2 text-[14px] leading-snug">Freemium SaaS: $7/mo Premium (unlimited + priority + advanced recurrence).</div></div>
+      <div class="canvas-card"><div class="label">Costs</div><div class="mt-2 text-[14px] leading-snug">$0.02 / sync blended (Claude Sonnet, Claude Haiku, Groq Whisper) + cloud + support.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. CUSTOMER / ICP -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 05 / Customer</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">Who exactly is the customer?</h2>
+    <p class="mt-3 text-muted max-w-2xl reveal-up d2">From <span class="mono">project_spec.md &sect;1, &sect;7</span>: the ICP is &ldquo;busy students and freelancers managing overlapping schedules&rdquo;. Beachhead narrowed below.</p>
+
+    <div class="grid md:grid-cols-2 gap-4 mt-8">
+      <div class="investor-card reveal-up d2">
+        <div class="bracket-label">Beachhead Segment</div>
+        <h3 class="text-2xl font-semibold mt-2 leading-tight">Russian/English-speaking university undergraduates managing 5&ndash;7 courses per semester.</h3>
+        <ul class="mt-4 space-y-2 text-[14px]">
+          <li class="flex gap-3"><span class="mono text-em-mid">&rsaquo;</span>Telegram is the dominant chat layer in target geo.</li>
+          <li class="flex gap-3"><span class="mono text-em-mid">&rsaquo;</span>Google Calendar is the de-facto scheduling tool in this cohort.</li>
+          <li class="flex gap-3"><span class="mono text-em-mid">&rsaquo;</span>Pain repeats every September and February.</li>
+          <li class="flex gap-3"><span class="mono text-em-mid">&rsaquo;</span>Low ARPU expectations match a $7/mo offer.</li>
+        </ul>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="bracket-label">Buying Roles (B2C, micro-purchase)</div>
+        <div class="mt-3 grid grid-cols-2 gap-3 text-[14px]">
+          <div><div class="mono text-[10px] tracking-widest text-muted uppercase">User</div><div class="mt-1">Student</div></div>
+          <div><div class="mono text-[10px] tracking-widest text-muted uppercase">Buyer</div><div class="mt-1">Same student</div></div>
+          <div><div class="mono text-[10px] tracking-widest text-muted uppercase">Decision Maker</div><div class="mt-1">Same student</div></div>
+          <div><div class="mono text-[10px] tracking-widest text-muted uppercase">Economic Buyer</div><div class="mt-1">Same student (impulse band)</div></div>
+          <div><div class="mono text-[10px] tracking-widest text-muted uppercase">Champion</div><div class="mt-1">Course rep / class chat admin</div></div>
+          <div><div class="mono text-[10px] tracking-widest text-muted uppercase">Blocker</div><div class="mt-1">&ldquo;Free Calendar is enough&rdquo; mindset</div></div>
+        </div>
+        <div class="mt-4"><span class="assumption-tag">Assumption</span><span class="text-muted text-sm ml-2">Roles inferred &mdash; PRD does not enumerate them.</span></div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4 mt-4">
+      <div class="investor-card reveal-up d3"><div class="bracket-label">Expansion 1</div><div class="mt-2 text-[15px]">Freelancers turning meeting notes into calendar blocks.</div></div>
+      <div class="investor-card reveal-up d4"><div class="bracket-label">Expansion 2</div><div class="mt-2 text-[15px]">Project managers converting brief notes into milestones.</div></div>
+      <div class="investor-card reveal-up d4"><div class="bracket-label">Expansion 3</div><div class="mt-2 text-[15px]">Busy parents syncing kids&rsquo; school calendars.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. PROBLEM -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 06 / Problem</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">The 30-minute tax on every semester.</h2>
+    <p class="mt-3 max-w-3xl text-[16px] reveal-up d2">From <span class="mono">project_spec.md &sect;2</span>: <em>&ldquo;The high friction of manual data entry. Manually transferring classes and deadlines from screenshots, PDF syllabi, or messy handwritten notes is time-consuming, mentally taxing, and prone to human error.&rdquo;</em></p>
+
+    <div class="grid md:grid-cols-3 gap-4 mt-8">
+      <div class="metric-card reveal-up d2"><div class="bracket-label">Frequency</div><div class="num-kpi mt-2">&times;2 / yr</div><div class="text-muted text-sm mt-1">Plus continuous ad-hoc events.</div></div>
+      <div class="metric-card reveal-up d2"><div class="bracket-label">Pain Intensity</div><div class="num-kpi mt-2">~5h / sem</div><div class="text-muted text-sm mt-1">30&ndash;90 min &times; 5&ndash;7 courses. <span class="assumption-tag ml-1">Assumption</span></div></div>
+      <div class="metric-card reveal-up d3"><div class="bracket-label">Error Cost</div><div class="num-kpi mt-2">Real $</div><div class="text-muted text-sm mt-1">Missed class &rarr; late penalty &rarr; lost grade.</div></div>
+      <div class="metric-card reveal-up d3"><div class="bracket-label">Urgency</div><div class="num-kpi mt-2">High</div><div class="text-muted text-sm mt-1">First two weeks of every semester.</div></div>
+      <div class="metric-card reveal-up d4"><div class="bracket-label">Measurability</div><div class="num-kpi mt-2">Yes</div><div class="text-muted text-sm mt-1">Minutes-per-event, accuracy of resulting events.</div></div>
+      <div class="metric-card reveal-up d4"><div class="bracket-label">Repeatability</div><div class="num-kpi mt-2">Cohort</div><div class="text-muted text-sm mt-1">Every cohort, every semester, every geography.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. EXISTING ALTERNATIVES -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 07 / Alternatives</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">What students do today &mdash; and why it fails.</h2>
+
+    <div class="grid md:grid-cols-2 gap-4 mt-8 reveal-up d2">
+      <div class="investor-card">
+        <div class="bracket-label">Manual Calendar Entry</div>
+        <div class="text-[15px] mt-2">Open Google Calendar, type each event, set RRULE manually.</div>
+        <div class="mt-3 flex gap-2 flex-wrap"><span class="risk-tag">Slow</span><span class="risk-tag">Error-prone</span></div>
+      </div>
+      <div class="investor-card">
+        <div class="bracket-label">Siri / Google Assistant</div>
+        <div class="text-[15px] mt-2">Voice-to-event works for one-line plans, fails on syllabus images.</div>
+        <div class="mt-3 flex gap-2 flex-wrap"><span class="risk-tag">No vision on grids</span><span class="risk-tag">No multi-event</span></div>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="bracket-label">OCR Tools (Lens, Microsoft Lens)</div>
+        <div class="text-[15px] mt-2">Extract raw text but stop there &mdash; no calendar sync, no recurrence inference.</div>
+        <div class="mt-3 flex gap-2 flex-wrap"><span class="risk-tag">No structure</span><span class="risk-tag">No sync</span></div>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="bracket-label">Pen, paper, spreadsheets</div>
+        <div class="text-[15px] mt-2">No reminders, no sync, gets lost or out of date in week two.</div>
+        <div class="mt-3 flex gap-2 flex-wrap"><span class="risk-tag">No reminders</span><span class="risk-tag">Drift</span></div>
+      </div>
+      <div class="investor-card reveal-up d4">
+        <div class="bracket-label">Doing nothing</div>
+        <div class="text-[15px] mt-2">Most common alternative. Chronic disorganization, missed deadlines.</div>
+        <div class="mt-3 flex gap-2 flex-wrap"><span class="risk-tag">High pain</span><span class="risk-tag">Recurring</span></div>
+      </div>
+      <div class="investor-card reveal-up d4">
+        <div class="bracket-label">Calendar-aware AIs (Reclaim, Motion, Gemini)</div>
+        <div class="text-[15px] mt-2">Strong scheduling logic, weak multimodal ingestion. None handle a photo of a 6&times;6 grid timetable.</div>
+        <div class="mt-3 flex gap-2 flex-wrap"><span class="risk-tag">Wrong wedge</span><span class="risk-tag">High ARPU</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. SOLUTION / WORKFLOW -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 08 / Solution &mdash; Before vs After</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">From 30 minutes to 30 seconds.</h2>
+
+    <div class="grid md:grid-cols-2 gap-4 mt-8">
+      <div class="investor-card reveal-up d2" style="background:#FAFAF9">
+        <div class="flex items-center justify-between"><div class="bracket-label" style="color:#B91C1C">Before</div><span class="risk-tag">Manual</span></div>
+        <ol class="mt-3 space-y-2 text-[14px] list-decimal list-inside">
+          <li>Open laptop, open syllabus PDF.</li>
+          <li>Open Google Calendar in another tab.</li>
+          <li>For each course: copy title, dates, time, location.</li>
+          <li>Set up RRULE manually (every Monday &amp; Wednesday at&hellip;).</li>
+          <li>Repeat 5&ndash;7 times per semester. Hope nothing was wrong.</li>
+        </ol>
+        <div class="divider my-4"></div>
+        <div class="text-sm text-muted">Output: 5&ndash;30 events in 30&ndash;90 minutes, often with errors.</div>
+      </div>
+
+      <div class="investor-card reveal-up d3" style="border-color:#10B981;background:#fff">
+        <div class="flex items-center justify-between"><div class="bracket-label">After</div><span class="evidence-tag">Working today</span></div>
+        <ol class="mt-3 space-y-2 text-[14px] list-decimal list-inside">
+          <li>Open Telegram, send photo / voice / text to <span class="mono">@CalenMindBot</span>.</li>
+          <li>Backend routes to the right model: Sonnet for vision, Haiku for text, Whisper&rarr;Haiku for voice.</li>
+          <li>Pydantic-validated <span class="mono">ParsedEventSchema</span> objects produced.</li>
+          <li>Events created in DB and pushed to Google Calendar with RRULE.</li>
+          <li>Bot replies with formatted confirmation in &lt;60s.</li>
+        </ol>
+        <div class="divider my-4"></div>
+        <div class="text-sm text-muted">Output: same 5&ndash;30 events in &lt;60 seconds, &gt;90% correct.</div>
+      </div>
+    </div>
+
+    <div class="mt-6 grid md:grid-cols-4 gap-3 reveal-up d4">
+      <div class="pill"><span class="dot"></span>Input: photo / voice / text</div>
+      <div class="pill"><span class="dot"></span>Processing: hybrid AI router</div>
+      <div class="pill"><span class="dot"></span>State change: Calendar event with RRULE</div>
+      <div class="pill"><span class="dot"></span>Human-in-the-loop: confirm before sync</div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. VALUE METRICS -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 09 / Value Metrics</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">Metrics that prove value, not vanity.</h2>
+
+    <div class="grid md:grid-cols-2 gap-4 mt-8">
+      <div class="investor-card reveal-up d2">
+        <div class="bracket-label">Workflow Metrics</div>
+        <ul class="mt-3 space-y-3 text-[14px]">
+          <li class="flex justify-between gap-4 border-b border-line pb-2"><span>Time-to-first-event</span><span class="mono font-semibold">&lt;60s <span class="evidence-tag ml-2">Proven</span></span></li>
+          <li class="flex justify-between gap-4 border-b border-line pb-2"><span>Manual edits per AI event</span><span class="mono font-semibold">&lt;0.3 <span class="assumption-tag ml-2">Target</span></span></li>
+          <li class="flex justify-between gap-4"><span>Schedule-entry time saved</span><span class="mono font-semibold">~5h / sem <span class="assumption-tag ml-2">Assumption</span></span></li>
+        </ul>
+      </div>
+      <div class="investor-card reveal-up d2">
+        <div class="bracket-label">Product Metrics</div>
+        <ul class="mt-3 space-y-3 text-[14px]">
+          <li class="flex justify-between gap-4 border-b border-line pb-2"><span>Activation D1 (signup&rarr;1st event &lt;24h)</span><span class="mono font-semibold">&ge;60% <span class="assumption-tag ml-2">Target</span></span></li>
+          <li class="flex justify-between gap-4 border-b border-line pb-2"><span>NSM &mdash; events / active user / week</span><span class="mono font-semibold">3&ndash;6 <span class="assumption-tag ml-2">Target</span></span></li>
+          <li class="flex justify-between gap-4"><span>M3 retention</span><span class="mono font-semibold">&ge;40% <span class="assumption-tag ml-2">Target</span></span></li>
+        </ul>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="bracket-label">AI Metrics</div>
+        <ul class="mt-3 space-y-3 text-[14px]">
+          <li class="flex justify-between gap-4 border-b border-line pb-2"><span>Grid extraction accuracy (SC005)</span><span class="mono font-semibold">&gt;90% <span class="evidence-tag ml-2">Proven</span></span></li>
+          <li class="flex justify-between gap-4 border-b border-line pb-2"><span>Refusal rate</span><span class="mono font-semibold">&lt;5% <span class="assumption-tag ml-2">Target</span></span></li>
+          <li class="flex justify-between gap-4"><span>Cost per successful task</span><span class="mono font-semibold">$0.02 <span class="evidence-tag ml-2">Proven</span></span></li>
+        </ul>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="bracket-label">Business Metrics</div>
+        <ul class="mt-3 space-y-3 text-[14px]">
+          <li class="flex justify-between gap-4 border-b border-line pb-2"><span>Free&rarr;Paid conversion at 10-sync gate</span><span class="mono font-semibold">5&ndash;8% <span class="assumption-tag ml-2">Target</span></span></li>
+          <li class="flex justify-between gap-4 border-b border-line pb-2"><span>Gross margin</span><span class="mono font-semibold">85% <span class="assumption-tag ml-2">Target</span></span></li>
+          <li class="flex justify-between gap-4"><span>LTV : CAC</span><span class="mono font-semibold">5.6&times; <span class="assumption-tag ml-2">Target</span></span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. UVP -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 10 / UVP</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">Unique Value Proposition.</h2>
+
+    <div class="mt-8 reveal-up d2 investor-card" style="background:#0F1411;color:#FAFAF9;border-color:#0F1411">
+      <div class="bracket-label" style="color:#10B981">Formula</div>
+      <p class="mt-3 text-2xl md:text-3xl leading-tight" style="letter-spacing:-.012em">
+        We help <span style="color:#10B981">busy students</span> turn <span style="color:#10B981">any class schedule &mdash; photo, voice, or messy text</span> into Google Calendar events <span style="color:#10B981">in under a minute</span>, without typing a single date or learning a new tool.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4 mt-6">
+      <div class="investor-card reveal-up d3"><div class="bracket-label">Why Now</div><div class="mt-2 text-[14px] leading-relaxed">LLM vision (Claude Sonnet 4.6) is finally accurate enough to read messy hand-aligned grids. Cost per call has dropped ~10&times; in 18 months.</div></div>
+      <div class="investor-card reveal-up d3"><div class="bracket-label">Main Business Result</div><div class="mt-2 text-[14px] leading-relaxed">Schedule-entry workflow shrinks from ~5 hours/semester to ~5 minutes &mdash; the smallest possible unit of friction.</div></div>
+      <div class="investor-card reveal-up d4"><div class="bracket-label">Main Pain Removed</div><div class="mt-2 text-[14px] leading-relaxed">Manual transcription of grids, ad-hoc plans in voice, and PDF/PNG syllabi &mdash; the three formats every other tool refuses to handle together.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 11. PRODUCT SCOPE FROM PRD -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 11 / Product Scope from PRD</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">What ships in the MVP &mdash; and what does not.</h2>
+    <p class="mt-3 text-muted reveal-up d2">Source of truth: <span class="mono">prd.json</span> + <span class="mono">docs/spec.md</span>.</p>
+
+    <div class="grid md:grid-cols-2 gap-4 mt-8">
+      <div class="investor-card reveal-up d2">
+        <div class="bracket-label">Core Features (P0)</div>
+        <ul class="mt-3 space-y-2 text-[14px]">
+          <li><span class="mono text-em-mid">F001</span> &nbsp; Google OAuth 2.0 &mdash; secure calendar.events access.</li>
+          <li><span class="mono text-em-mid">F002</span> &nbsp; Multimodal input &mdash; photo, voice, text.</li>
+          <li><span class="mono text-em-mid">F003</span> &nbsp; LLM entity extraction &mdash; title, time, location, RRULE.</li>
+          <li><span class="mono text-em-mid">F004</span> &nbsp; Idempotent Google Calendar sync.</li>
+          <li><span class="mono text-em-mid">F006</span> &nbsp; Telegram-native interface (aiogram 3 widgets).</li>
+        </ul>
+      </div>
+      <div class="investor-card reveal-up d2">
+        <div class="bracket-label">Differentiating Scenarios</div>
+        <ul class="mt-3 space-y-2 text-[14px]">
+          <li><span class="mono text-em-mid">SC002</span> &nbsp; Photo syllabus &rarr; events.</li>
+          <li><span class="mono text-em-mid">SC003</span> &nbsp; Voice note &rarr; event.</li>
+          <li><span class="mono text-em-mid">SC005</span> &nbsp; <strong>Grid schedule parsing</strong> &mdash; the wedge competitors miss.</li>
+          <li><span class="mono text-em-mid">SC004</span> &nbsp; Freemium gate at 10 syncs / month.</li>
+          <li><span class="mono text-em-mid">SC001</span> &nbsp; Onboarding via Telegram + OAuth.</li>
+        </ul>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="bracket-label">Non-Functional</div>
+        <ul class="mt-3 space-y-2 text-[14px]">
+          <li>Async stack: SQLAlchemy + asyncpg + aiogram 3 (no blocking I/O).</li>
+          <li>Fernet AES-128-CBC encryption for OAuth tokens.</li>
+          <li>Pydantic v2 schemas at every boundary.</li>
+          <li>Bot has zero DB access; backend is independently scalable.</li>
+        </ul>
+      </div>
+      <div class="investor-card reveal-up d3" style="background:#FAFAF9">
+        <div class="bracket-label">MVP Boundary</div>
+        <ul class="mt-3 space-y-2 text-[14px]">
+          <li>Telegram + Google Calendar only.</li>
+          <li>Russian + English language support.</li>
+          <li>Outlook, Apple Calendar, Chrome extension &mdash; later.</li>
+          <li>Payment integration handled by Telegram Payments / Stripe link (post-MVP).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 12. ARCHITECTURE & DEFENSIBILITY -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 12 / Architecture &amp; Defensibility</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">A small system, but a serious one.</h2>
+
+    <div class="mt-8 grid md:grid-cols-2 gap-4">
+      <div class="investor-card reveal-up d2">
+        <div class="bracket-label">Client Layer</div>
+        <div class="mt-2 text-[14px]">aiogram 3 Telegram bot, widget pattern (Trigger &rarr; Code &rarr; Answer). Zero install for the user.</div>
+      </div>
+      <div class="investor-card reveal-up d2">
+        <div class="bracket-label">Backend</div>
+        <div class="mt-2 text-[14px]">FastAPI, layered: <span class="mono">API &rarr; Service &rarr; Repository &rarr; Model</span>. Pydantic v2 contracts at every seam.</div>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="bracket-label">Data</div>
+        <div class="mt-2 text-[14px]">PostgreSQL (users, events, oauth_tokens). Tokens encrypted with Fernet AES-128-CBC.</div>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="bracket-label">Integrations</div>
+        <div class="mt-2 text-[14px]">Google Calendar API, Anthropic (Claude Sonnet 4.6 + Haiku 4.5), Groq (Whisper-large-v3).</div>
+      </div>
+      <div class="investor-card reveal-up d4">
+        <div class="bracket-label">Scalability</div>
+        <div class="mt-2 text-[14px]">Bot and backend deploy independently. Async throughout. Stateless API behind a managed Postgres.</div>
+      </div>
+      <div class="investor-card reveal-up d4">
+        <div class="bracket-label">Technical Moat</div>
+        <div class="mt-2 text-[14px]">BDD-locked data contract on AI output (catches hallucinations before any DB write). Domain-tuned grid prompt for SC005.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 13. AI ADVANTAGE -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 13 / AI Advantage</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">Three models, one router, one cost line.</h2>
+
+    <div class="grid md:grid-cols-3 gap-4 mt-8">
+      <div class="investor-card reveal-up d2">
+        <div class="bracket-label">Photo &rarr; Sonnet 4.6</div>
+        <div class="num-kpi mt-3">~$0.015</div>
+        <div class="mt-2 text-sm text-muted">Highest table/syllabus vision accuracy. Auto-detects JPEG/PNG/WEBP. One automatic retry on parse failure.</div>
+      </div>
+      <div class="investor-card reveal-up d2">
+        <div class="bracket-label">Text &rarr; Haiku 4.5</div>
+        <div class="num-kpi mt-3">~$0.001</div>
+        <div class="mt-2 text-sm text-muted">Cost-efficient extraction for clean strings; supports Russian and English.</div>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="bracket-label">Voice &rarr; Whisper + Haiku</div>
+        <div class="num-kpi mt-3">~$0.002</div>
+        <div class="mt-2 text-sm text-muted">Groq Whisper for sub-second STT, Haiku for entity extraction. Avoids OpenAI quota limits.</div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4 mt-4">
+      <div class="investor-card reveal-up d3">
+        <div class="bracket-label">Quality Loop</div>
+        <ul class="mt-2 space-y-2 text-[14px]">
+          <li>BDD scenarios (SC002, SC003, SC005) act as a regression suite for prompt + model upgrades.</li>
+          <li>Pydantic validation rejects malformed AI output before any DB write.</li>
+          <li>Markdown-fence stripping + corrective retry handles model drift.</li>
+        </ul>
+      </div>
+      <div class="investor-card reveal-up d4">
+        <div class="bracket-label">Data Flywheel (planned)</div>
+        <ul class="mt-2 space-y-2 text-[14px]">
+          <li>User-corrected events become labeled training data for grid extraction.</li>
+          <li>Confidence + retry signals power an internal eval harness.</li>
+          <li>Each prompt rev measured against the same fixture set in CI.</li>
+        </ul>
+        <div class="mt-3"><span class="assumption-tag">Roadmap</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 14. EARLY ADOPTERS / TRACTION -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 14 / Early Adopters &amp; Traction</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">Built. Tested. Ready for cohort one.</h2>
+
+    <div class="grid md:grid-cols-2 gap-4 mt-8">
+      <div class="investor-card reveal-up d2">
+        <div class="flex items-center justify-between"><div class="bracket-label">Current Traction</div><span class="evidence-tag">Provided by founder</span></div>
+        <ul class="mt-3 space-y-2 text-[14px]">
+          <li>&bull;&nbsp; Functional prototype, end-to-end Telegram &rarr; Calendar.</li>
+          <li>&bull;&nbsp; 100% of P0 features shipped (OAuth, Photo, Voice, Text).</li>
+          <li>&bull;&nbsp; BDD test coverage including the SC005 grid wedge.</li>
+          <li>&bull;&nbsp; <strong>&gt;90% extraction accuracy</strong> on complex university grid syllabi.</li>
+          <li>&bull;&nbsp; Blended COGS measured at $0.02 / sync.</li>
+        </ul>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="bracket-label">Best First Cohort</div>
+        <ul class="mt-3 space-y-2 text-[14px]">
+          <li>&rsaquo; Russian-speaking universities at September semester start.</li>
+          <li>&rsaquo; 1 ambassador per university (course rep / chat admin).</li>
+          <li>&rsaquo; International students dealing with foreign formats.</li>
+          <li>&rsaquo; CIS Telegram student communities (high density, low CAC).</li>
+        </ul>
+        <div class="mt-3"><span class="assumption-tag">Cohort to be recruited Q3</span></div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-3 mt-4 reveal-up d4">
+      <div class="metric-card"><div class="bracket-label">Signal 1</div><div class="text-[14px] mt-2">Already losing time on manual entry every semester.</div></div>
+      <div class="metric-card"><div class="bracket-label">Signal 2</div><div class="text-[14px] mt-2">Dissatisfied with Calendar-only and OCR-only options.</div></div>
+      <div class="metric-card"><div class="bracket-label">Signal 3</div><div class="text-[14px] mt-2">Willing to try imperfect MVP if it saves 30 minutes.</div></div>
+      <div class="metric-card"><div class="bracket-label">Signal 4</div><div class="text-[14px] mt-2">High-density chat communities for fast feedback &amp; case studies.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 15. MARKET -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 15 / Market</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">Beachhead small. Expansion big.</h2>
+    <p class="mt-3 text-muted reveal-up d2">Bottom-up wherever possible; top-down only as a sanity check. Numbers below carry an explicit Assumption tag.</p>
+
+    <div class="grid md:grid-cols-3 gap-4 mt-8">
+      <div class="investor-card reveal-up d2"><div class="bracket-label">SOM &mdash; 12 months</div><div class="num-kpi mt-3">$0.4M ARR</div><div class="text-sm text-muted mt-2">5,000 active &times; 10% paid &times; $7/mo &times; 12 = $42K&hellip;$420K depending on conversion. <span class="assumption-tag ml-1">Assumption</span></div></div>
+      <div class="investor-card reveal-up d3"><div class="bracket-label">SAM &mdash; CIS Telegram-heavy</div><div class="num-kpi mt-3">$8.4M ARR</div><div class="text-sm text-muted mt-2">~10M tertiary students &times; 1% paid penetration &times; $84 LTV. <span class="assumption-tag ml-1">Assumption</span></div></div>
+      <div class="investor-card reveal-up d4"><div class="bracket-label">TAM &mdash; Global</div><div class="num-kpi mt-3">~$21B</div><div class="text-sm text-muted mt-2">~250M tertiary students globally &times; $84 LTV (UNESCO band). <span class="assumption-tag ml-1">Assumption</span></div></div>
+    </div>
+
+    <div class="mt-6 investor-card reveal-up d4">
+      <div class="bracket-label">Expansion Path</div>
+      <div class="mt-3 grid md:grid-cols-4 gap-3 text-sm">
+        <div class="p-3 border border-line rounded-lg">CIS universities &rarr; English-speaking universities</div>
+        <div class="p-3 border border-line rounded-lg">Students &rarr; Freelancers (meeting notes)</div>
+        <div class="p-3 border border-line rounded-lg">Freelancers &rarr; Project managers (briefs)</div>
+        <div class="p-3 border border-line rounded-lg">Individual &rarr; Campus B2B license</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 16. GTM CHANNELS -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 16 / Go-To-Market</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">Founder-led now, repeatable later.</h2>
+
+    <div class="grid md:grid-cols-2 gap-4 mt-8">
+      <div class="investor-card reveal-up d2">
+        <div class="flex items-center justify-between"><div class="bracket-label">Phase 1 / Founder-led</div><span class="pill"><span class="dot"></span>0&ndash;6 months</span></div>
+        <ul class="mt-3 space-y-2 text-[14px]">
+          <li>&rsaquo; University Telegram chats &amp; Discord study groups.</li>
+          <li>&rsaquo; 1 student ambassador per university (Premium gift, no cash).</li>
+          <li>&rsaquo; Reddit (r/college, r/AskAcademia), Russian VK communities.</li>
+          <li>&rsaquo; Product Hunt launch + indie student newsletters.</li>
+        </ul>
+        <div class="mt-3 text-sm text-muted">Match to price: $7/mo demands near-zero CAC channels &mdash; community + viral only.</div>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="flex items-center justify-between"><div class="bracket-label">Phase 2 / Repeatable</div><span class="pill"><span class="dot"></span>Post-PMF</span></div>
+        <ul class="mt-3 space-y-2 text-[14px]">
+          <li>&rsaquo; Referral loop &mdash; give-1-month-get-1-month.</li>
+          <li>&rsaquo; Study creators on TikTok / Instagram Reels.</li>
+          <li>&rsaquo; Partnerships with note-taking apps + LMS plug-ins.</li>
+          <li>&rsaquo; Campus B2B license (priority AI for whole department).</li>
+        </ul>
+        <div class="mt-3 text-sm text-muted">Trigger: CAC &le; $15 and M3 retention &ge; 40% on Phase-1 cohorts.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 investor-card reveal-up d4">
+      <div class="bracket-label">Buyer Journey</div>
+      <div class="mt-3 grid grid-cols-1 md:grid-cols-5 gap-2 text-sm">
+        <div class="p-3 border border-line rounded-lg">Sees ambassador post in chat</div>
+        <div class="p-3 border border-line rounded-lg">Tries bot with real syllabus</div>
+        <div class="p-3 border border-line rounded-lg">Gets 5+ events in &lt;60s</div>
+        <div class="p-3 border border-line rounded-lg">Hits 10-sync limit in week 3&ndash;4</div>
+        <div class="p-3 border border-line rounded-lg" style="background:#ECFDF5;border-color:#10B981">Upgrades to Premium</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 17. BUSINESS MODEL & PRICING -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 17 / Business Model &amp; Pricing</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">Freemium that converts at the limit.</h2>
+
+    <div class="grid md:grid-cols-3 gap-4 mt-8">
+      <div class="investor-card reveal-up d2">
+        <div class="bracket-label">Free Tier</div>
+        <div class="num-kpi mt-3">10 syncs / mo</div>
+        <ul class="mt-3 space-y-1 text-[14px] text-muted">
+          <li>&bull; Photo / Voice / Text input</li>
+          <li>&bull; Standard model routing</li>
+          <li>&bull; Counter resets monthly (UTC)</li>
+        </ul>
+      </div>
+      <div class="investor-card reveal-up d3" style="border-color:#10B981;background:#ECFDF5">
+        <div class="flex items-center justify-between"><div class="bracket-label">Premium</div><span class="evidence-tag">Default offer</span></div>
+        <div class="num-kpi mt-3">$7 / mo</div>
+        <ul class="mt-3 space-y-1 text-[14px]">
+          <li>&bull; Unlimited syncs</li>
+          <li>&bull; Priority AI processing for complex images</li>
+          <li>&bull; Advanced recurrence logic</li>
+          <li>&bull; Multi-calendar (post-MVP)</li>
+        </ul>
+      </div>
+      <div class="investor-card reveal-up d4">
+        <div class="bracket-label">Future Tiers</div>
+        <ul class="mt-3 space-y-2 text-[14px]">
+          <li>&rsaquo; Annual ~$60 (savings + retention).</li>
+          <li>&rsaquo; Campus B2B license (per-seat).</li>
+          <li>&rsaquo; Usage credits for power-user freelancers.</li>
+        </ul>
+        <div class="mt-3"><span class="assumption-tag">Roadmap</span></div>
+      </div>
+    </div>
+
+    <div class="mt-6 investor-card reveal-up d4">
+      <div class="bracket-label">Why This Pricing Matches Customer Value &amp; Cost</div>
+      <ul class="mt-3 space-y-2 text-[14px]">
+        <li>&bull; $7/mo sits below the impulse-purchase threshold for students.</li>
+        <li>&bull; 10 free syncs = enough to feel value, not enough to power-use a semester start.</li>
+        <li>&bull; The F004 limit hit creates a predictable conversion moment in week 3&ndash;4.</li>
+        <li>&bull; At $0.02 COGS / sync, blended monthly cost stays well under 15% of ARPU even for power users.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 18. COST STRUCTURE & UNIT ECONOMICS -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 18 / Cost Structure &amp; Unit Economics</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">85% gross margin is the design target.</h2>
+
+    <div class="grid md:grid-cols-2 gap-4 mt-8">
+      <div class="investor-card reveal-up d2">
+        <div class="bracket-label">Cost Stack &mdash; per AI task</div>
+        <div class="mt-3 divide-y divide-line text-[14px]">
+          <div class="flex justify-between py-2"><span>Claude Sonnet 4.6 (photo)</span><span class="mono">~$0.015</span></div>
+          <div class="flex justify-between py-2"><span>Claude Haiku 4.5 (text)</span><span class="mono">~$0.001</span></div>
+          <div class="flex justify-between py-2"><span>Groq Whisper (voice STT)</span><span class="mono">~$0.001</span></div>
+          <div class="flex justify-between py-2"><span>Postgres + cloud + retries</span><span class="mono">~$0.003</span></div>
+          <div class="flex justify-between py-2 font-semibold"><span>Blended COGS / sync</span><span class="mono">$0.02 <span class="evidence-tag ml-2">Proven</span></span></div>
+        </div>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="bracket-label">Unit Economics</div>
+        <div class="mt-3 divide-y divide-line text-[14px]">
+          <div class="flex justify-between py-2"><span>ARPU</span><span class="mono">$7 / mo</span></div>
+          <div class="flex justify-between py-2"><span>LTV (12 mo)</span><span class="mono">$84 <span class="assumption-tag ml-2">Cohort to validate</span></span></div>
+          <div class="flex justify-between py-2"><span>Target Gross Margin</span><span class="mono">85%</span></div>
+          <div class="flex justify-between py-2"><span>CAC target</span><span class="mono">$15</span></div>
+          <div class="flex justify-between py-2"><span>LTV : CAC</span><span class="mono font-semibold">5.6&times;</span></div>
+          <div class="flex justify-between py-2"><span>CAC payback</span><span class="mono">~2 months</span></div>
+        </div>
+      </div>
+      <div class="investor-card reveal-up d4 md:col-span-2">
+        <div class="bracket-label">Indirect Costs (post-funding)</div>
+        <div class="mt-3 grid md:grid-cols-4 gap-3 text-sm">
+          <div class="p-3 border border-line rounded-lg">Eval harness &amp; monitoring</div>
+          <div class="p-3 border border-line rounded-lg">Support (founder-led)</div>
+          <div class="p-3 border border-line rounded-lg">Compliance / data security</div>
+          <div class="p-3 border border-line rounded-lg">Ambassador budget</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 19. STAGE & KEY RISKS -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 19 / Stage &amp; Risks</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">Where we are, what is open.</h2>
+
+    <div class="mt-8 reveal-up d2 flex flex-wrap gap-2 items-center">
+      <span class="pill">Idea</span>
+      <span class="text-muted">&rsaquo;</span>
+      <span class="pill" style="background:#0F1411;color:#fff;border-color:#0F1411"><span class="dot" style="background:#10B981"></span>Prototype &mdash; current</span>
+      <span class="text-muted">&rsaquo;</span>
+      <span class="pill">MVP &mdash; next 0&ndash;3 mo</span>
+      <span class="text-muted">&rsaquo;</span>
+      <span class="pill">PMF &mdash; 9&ndash;12 mo</span>
+      <span class="text-muted">&rsaquo;</span>
+      <span class="pill">Scaling</span>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4 mt-8">
+      <div class="investor-card reveal-up d3">
+        <div class="bracket-label">Already Proven</div>
+        <ul class="mt-3 space-y-2 text-[14px]">
+          <li><span class="evidence-tag mr-2">Tech</span> &gt;90% accuracy on complex grid syllabi.</li>
+          <li><span class="evidence-tag mr-2">Cost</span> $0.02 blended COGS per sync.</li>
+          <li><span class="evidence-tag mr-2">Engineering</span> Layered backend, Pydantic-validated, BDD-locked.</li>
+          <li><span class="evidence-tag mr-2">UX</span> Telegram-native onboarding (no install).</li>
+        </ul>
+      </div>
+      <div class="investor-card reveal-up d3">
+        <div class="bracket-label">Still Unproven (Top Risks)</div>
+        <ul class="mt-3 space-y-2 text-[14px]">
+          <li><span class="risk-tag mr-2">Distribution</span> Can student channels reliably deliver CAC &lt; $15?</li>
+          <li><span class="risk-tag mr-2">Retention</span> Will students stay past first semester?</li>
+          <li><span class="risk-tag mr-2">Platform</span> Telegram &amp; Google API policy shifts.</li>
+          <li><span class="risk-tag mr-2">Competitive</span> Google/Apple ship native AI for this.</li>
+        </ul>
+      </div>
+      <div class="investor-card reveal-up d4 md:col-span-2" style="background:#ECFDF5;border-color:#10B981">
+        <div class="bracket-label">Next Experiment</div>
+        <p class="mt-2 text-[15px]">Recruit a 500-student MVP cohort at September semester start. Measure: activation D1, week-1/week-4 retention, conversion at the 10-sync gate, and CAC by ambassador channel. <strong>One-quarter, one number per risk.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 20. ROADMAP -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 20 / Roadmap</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">Each milestone retires one risk.</h2>
+
+    <div class="grid md:grid-cols-2 gap-4 mt-8">
+      <div class="timeline-step reveal-up d2">
+        <div class="bracket-label">0 &ndash; 3 months</div>
+        <div class="mt-2 text-[15px] font-semibold">Launch MVP to 500 students.</div>
+        <ul class="mt-2 text-sm text-muted space-y-1">
+          <li>&bull; Russian + English ready.</li>
+          <li>&bull; Activation D1 &ge; 60%.</li>
+          <li>&bull; Recruit 5&ndash;10 ambassadors.</li>
+        </ul>
+        <div class="mt-2"><span class="risk-tag">Retires: Distribution + Activation</span></div>
+      </div>
+      <div class="timeline-step reveal-up d2">
+        <div class="bracket-label">3 &ndash; 6 months</div>
+        <div class="mt-2 text-[15px] font-semibold">95% grid extraction automation.</div>
+        <ul class="mt-2 text-sm text-muted space-y-1">
+          <li>&bull; User-correction labeling pipeline live.</li>
+          <li>&bull; Conversion test at the 10-sync gate.</li>
+          <li>&bull; First paid cohort &ge; 100 subs.</li>
+        </ul>
+        <div class="mt-2"><span class="risk-tag">Retires: Conversion + Accuracy</span></div>
+      </div>
+      <div class="timeline-step reveal-up d3">
+        <div class="bracket-label">6 &ndash; 9 months</div>
+        <div class="mt-2 text-[15px] font-semibold">Outlook + Apple Calendar.</div>
+        <ul class="mt-2 text-sm text-muted space-y-1">
+          <li>&bull; Triple addressable market.</li>
+          <li>&bull; Reduce platform-risk concentration.</li>
+          <li>&bull; Begin English-speaking university expansion.</li>
+        </ul>
+        <div class="mt-2"><span class="risk-tag">Retires: Platform &amp; TAM</span></div>
+      </div>
+      <div class="timeline-step reveal-up d3">
+        <div class="bracket-label">9 &ndash; 12 months</div>
+        <div class="mt-2 text-[15px] font-semibold">1,000 paid subscribers, Seed-ready.</div>
+        <ul class="mt-2 text-sm text-muted space-y-1">
+          <li>&bull; CAC &le; $15 proven on at least one channel.</li>
+          <li>&bull; M3 retention &ge; 40% on first cohort.</li>
+          <li>&bull; Seed pitch with cohort data + retention curve.</li>
+        </ul>
+        <div class="mt-2"><span class="risk-tag">Retires: Monetization &amp; PMF signals</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 21. FUNDING ASK -->
+<section class="slide b-w">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 21 / Funding Ask</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1" style="color:#FAFAF9">$100K to buy one milestone.</h2>
+
+    <div class="mt-6 reveal-up d2 p-6 border border-white/15 rounded-2xl" style="background:#0B0F0D">
+      <div class="bracket-label" style="color:#10B981">The Sentence</div>
+      <p class="mt-3 text-xl md:text-2xl leading-snug" style="color:#E5E7EB">
+        We are raising <span style="color:#10B981;font-weight:600">$100,000 pre-seed</span> to reach <span style="color:#10B981;font-weight:600">5,000 active users and 1,000 paid subscribers</span> in <span style="color:#10B981;font-weight:600">12 months</span>, proving CAC &lt; $15, M3 retention &ge; 40%, gross margin &ge; 85%, and Outlook/Apple expansion-readiness.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4 mt-6">
+      <div class="reveal-up d3 p-5 border border-white/15 rounded-xl">
+        <div class="mono text-[10px] tracking-widest text-white/50 uppercase">Use of Funds</div>
+        <div class="mt-3 divide-y divide-white/10 text-[14px]" style="color:#E5E7EB">
+          <div class="flex justify-between py-2"><span>Engineering (multi-calendar + accuracy uplift)</span><span class="mono">50%</span></div>
+          <div class="flex justify-between py-2"><span>AI inference &amp; infra</span><span class="mono">25%</span></div>
+          <div class="flex justify-between py-2"><span>Community / ambassadors</span><span class="mono">15%</span></div>
+          <div class="flex justify-between py-2"><span>Legal &amp; ops</span><span class="mono">10%</span></div>
+        </div>
+      </div>
+      <div class="reveal-up d3 p-5 border border-white/15 rounded-xl">
+        <div class="mono text-[10px] tracking-widest text-white/50 uppercase">Key Proof Points Expected</div>
+        <ul class="mt-3 space-y-2 text-[14px]" style="color:#E5E7EB">
+          <li>&rsaquo; CAC &le; $15 on at least one repeatable channel.</li>
+          <li>&rsaquo; Activation D1 &ge; 60% on student cohort.</li>
+          <li>&rsaquo; M3 retention &ge; 40% on first paid cohort.</li>
+          <li>&rsaquo; 95% accuracy on dirty grid syllabi.</li>
+          <li>&rsaquo; Multi-calendar shipped (Outlook, Apple).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-4 reveal-up d4 p-5 border border-white/15 rounded-xl" style="background:#0B0F0D">
+      <div class="mono text-[10px] tracking-widest text-white/50 uppercase">Next Financing Logic</div>
+      <p class="mt-2 text-[15px]" style="color:#E5E7EB">At 1,000 paid subscribers + clear retention curve &rarr; <span style="color:#10B981;font-weight:600">Seed round ($1&ndash;2M)</span> to scale acquisition and ship Campus B2B.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 22. CLOSING SUMMARY -->
+<section class="slide">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal-up section-kicker">Slide 22 / Closing Summary</div>
+    <h2 class="deck-h2 mt-3 reveal-up d1">CalenMind, on one page.</h2>
+
+    <div class="mt-8 reveal-up d2">
+      <div class="row"><div class="k">Customer</div><div class="text-[15px]">Russian/English-speaking university students managing rotating semester schedules.</div></div>
+      <div class="row"><div class="k">Problem</div><div class="text-[15px]">~5 hours per semester of manual schedule entry from PDFs, photos, voice and messy text.</div></div>
+      <div class="row"><div class="k">Solution</div><div class="text-[15px]">Telegram-native multimodal AI agent &mdash; schedule into Google Calendar in &lt;60 seconds.</div></div>
+      <div class="row"><div class="k">Evidence</div><div class="text-[15px]">Working prototype, &gt;90% grid accuracy, BDD-locked data contract, $0.02 blended COGS.</div></div>
+      <div class="row"><div class="k">Business Model</div><div class="text-[15px]">Freemium SaaS &mdash; 10 free / mo, $7/mo Premium, 85% target gross margin, $84 LTV.</div></div>
+      <div class="row"><div class="k">Market</div><div class="text-[15px]">SOM ~$0.4M ARR (Year 1), SAM ~$8.4M ARR (CIS), TAM ~$21B (global tertiary).</div></div>
+      <div class="row"><div class="k">Moat</div><div class="text-[15px]">Domain-tuned grid prompt + cost-optimal AI router + Telegram zero-install + BDD-locked AI contract.</div></div>
+      <div class="row"><div class="k">Funding Milestone</div><div class="text-[15px]"><strong>$100K pre-seed</strong> &rarr; 5,000 active users + 1,000 paid + Outlook/Apple, 12 months.</div></div>
+    </div>
+
+    <div class="mt-10 reveal-up d4 investor-card" style="background:#0F1411;color:#FAFAF9;border-color:#0F1411">
+      <div class="bracket-label" style="color:#10B981">Closing Line</div>
+      <p class="mt-2 text-2xl md:text-3xl leading-tight">We turn the most painful 30 minutes of every student&rsquo;s semester into 30 seconds. Join us.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+(function(){
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let idx = 0;
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const progress = document.getElementById('progress');
+  tot.textContent = String(total).padStart(2,'0');
+
+  function update(){
+    slides.forEach((s,i)=>s.classList.toggle('active', i===idx));
+    cur.textContent = String(idx+1).padStart(2,'0');
+    progress.style.width = ((idx+1)/total*100).toFixed(2) + '%';
+    slides[idx].scrollTop = 0;
+  }
+  function next(){ if(idx<total-1){ idx++; update(); } }
+  function prev(){ if(idx>0){ idx--; update(); } }
+
+  document.addEventListener('keydown', (e)=>{
+    const k = e.key;
+    if(k==='ArrowRight' || k==='PageDown' || k===' '){ e.preventDefault(); next(); }
+    else if(k==='ArrowLeft' || k==='PageUp'){ e.preventDefault(); prev(); }
+    else if(k==='Home'){ e.preventDefault(); idx=0; update(); }
+    else if(k==='End'){ e.preventDefault(); idx=total-1; update(); }
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', next);
+  document.getElementById('prevBtn').addEventListener('click', prev);
+
+  document.getElementById('container').addEventListener('click', (e)=>{
+    if(e.target.closest('a, button, input, textarea, select, .nav-arrow')) return;
+    if(window.innerWidth < 900) return;
+    const x = e.clientX;
+    if(x > window.innerWidth/2) next(); else prev();
+  });
+
+  let touchStartX=null, touchStartY=null;
+  document.addEventListener('touchstart', (e)=>{
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, {passive:true});
+  document.addEventListener('touchend', (e)=>{
+    if(touchStartX===null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)){
+      if(dx < 0) next(); else prev();
+    }
+    touchStartX=null; touchStartY=null;
+  }, {passive:true});
+
+  let wheelLock=false;
+  document.addEventListener('wheel', (e)=>{
+    if(wheelLock) return;
+    const slide = slides[idx];
+    if(e.deltaY > 30){
+      if(slide.scrollTop + slide.clientHeight >= slide.scrollHeight - 4){
+        wheelLock=true; next(); setTimeout(()=>wheelLock=false, 700);
+      }
+    } else if(e.deltaY < -30){
+      if(slide.scrollTop <= 4){
+        wheelLock=true; prev(); setTimeout(()=>wheelLock=false, 700);
+      }
+    }
+  }, {passive:true});
+
+  update();
+})();
+</script>
+
+</body>
+</html>
